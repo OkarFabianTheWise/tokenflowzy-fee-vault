@@ -2,6 +2,7 @@ use crate::state::VaultState;
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::{program::invoke, system_instruction};
 
+// Instruction to deposit funds into the vault.
 #[derive(Accounts)]
 pub struct Deposit<'info> {
     #[account(mut)]
@@ -15,13 +16,15 @@ pub struct Deposit<'info> {
     pub system_program: Program<'info, System>,
 }
 
+// Deposit funds into the vault.
 pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
+    // Transfer the funds from the depositor to the vault.
     let transfer_ix = system_instruction::transfer(
         &ctx.accounts.depositor.key(),
         &ctx.accounts.vault_state.to_account_info().key(),
         amount,
     );
-
+    // Invoke the system program to transfer the funds.
     invoke(
         &transfer_ix,
         &[
@@ -30,10 +33,10 @@ pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
             ctx.accounts.system_program.to_account_info(),
         ],
     )?;
-
+    // Update the vault state.
     ctx.accounts.vault_state.revenue += amount;
     ctx.accounts.vault_state.tokens_deployed += 1;
-
+    // Emit a deposit event.
     emit!(DepositEvent {
         depositor: *ctx.accounts.depositor.key,
         amount,
@@ -42,7 +45,7 @@ pub fn deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
 
     Ok(())
 }
-
+// Event emitted when funds are deposited into the vault.
 #[event]
 pub struct DepositEvent {
     pub depositor: Pubkey,

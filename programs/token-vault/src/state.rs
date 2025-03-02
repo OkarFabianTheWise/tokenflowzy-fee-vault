@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+// The state of the vault.
+// This is the account that holds the funds for the vault.
 #[account]
 #[derive(InitSpace)]
 pub struct VaultState {
