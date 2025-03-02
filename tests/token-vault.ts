@@ -1,5 +1,5 @@
-import * as anchor from '@project-serum/anchor';
-import { Program } from '@project-serum/anchor';
+import * as anchor from '@coral-xyz/anchor';
+import { Program } from '@coral-xyz/anchor';
 import { TokenVault } from '../target/types/token_vault';
 import { expect } from 'chai';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
@@ -16,8 +16,8 @@ describe('token-vault', () => {
         await program.methods
             .initialize(owner)
             .accounts({
-                vault: vault.publicKey,
-                authority: provider.wallet.publicKey,
+                payer: provider.wallet.publicKey,
+                vaultState: vault.publicKey,
                 systemProgram: SystemProgram.programId,
             })
             .signers([vault])
@@ -31,8 +31,8 @@ describe('token-vault', () => {
         await program.methods
             .deposit(depositAmount)
             .accounts({
-                vault: vault.publicKey,
                 depositor: provider.wallet.publicKey,
+                vaultState: vault.publicKey,
                 systemProgram: SystemProgram.programId,
             })
             .rpc();
@@ -48,8 +48,8 @@ describe('token-vault', () => {
         await program.methods
             .withdraw(withdrawAmount)
             .accounts({
-                vault: vault.publicKey,
                 owner: owner,
+                vaultState: vault.publicKey,
                 systemProgram: SystemProgram.programId,
             })
             .rpc();
@@ -69,8 +69,8 @@ describe('token-vault', () => {
             await program.methods
                 .withdraw(withdrawAmount)
                 .accounts({
-                    vault: vault.publicKey,
                     owner: nonOwner.publicKey,
+                    vaultState: vault.publicKey,
                     systemProgram: SystemProgram.programId,
                 })
                 .signers([nonOwner])
